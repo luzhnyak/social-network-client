@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useUserStore } from "@/store/useStore";
 
 const API_URL = "http://127.0.0.1:8000";
 
@@ -16,46 +17,61 @@ export interface Chat {
   name: string;
 }
 
-export const registerUser = async (data: AuthData) => {
-  return axios.post(`${API_URL}/auth/register`, data);
+export const registerUser = async (
+  data: AuthData
+): Promise<{ token: string }> => {
+  const response = await axios.post(`${API_URL}/auth/register`, data);
+  const token = response.data.token;
+  const { setToken } = useUserStore.getState();
+  setToken(token);
+  return { token };
 };
 
-export const loginUser = async (data: AuthData) => {
-  return axios.post(`${API_URL}/auth/login`, data);
+export const loginUser = async (data: AuthData): Promise<{ token: string }> => {
+  const response = await axios.post(`${API_URL}/auth/login`, data);
+  const token = response.data.token;
+
+  //   const { setToken } = useUserStore((state) => ({
+  //     login: state.setToken,
+  //   }));
+
+  //   const { setToken } = useUserStore.getState();
+  //   setToken(token);
+  return { token };
 };
 
-export const getUserSettings = async (
-  token: string
-): Promise<SettingsResponse> => {
+export const getUserSettings = async (): Promise<{
+  telegramConnected: boolean;
+}> => {
+  const token = useUserStore.getState().token;
+  if (!token) throw new Error("Token is missing");
   const response = await axios.get(`${API_URL}/settings`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
 };
 
-export const connectTelegram = async (token: string) => {
-  return axios.post(
-    `${API_URL}/connect-telegram`,
-    {},
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
-};
-
-export const disconnectTelegram = async (token: string) => {
-  return axios.post(
-    `${API_URL}/disconnect-telegram`,
-    {},
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
-};
-
-export const fetchChats = async (token: string): Promise<Chat[]> => {
+export const fetchChats = async (): Promise<{ id: string; name: string }[]> => {
+  const token = useUserStore.getState().token;
+  if (!token) throw new Error("Token is missing");
   const response = await axios.get(`${API_URL}/chats`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
+};
+
+export const connectTelegram = async (): Promise<void> => {
+  const token = useUserStore.getState().token;
+  if (!token) throw new Error("Token is missing");
+  await axios.post(`${API_URL}/telegram/connect`, null, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+export const disconnectTelegram = async (): Promise<void> => {
+  const token = useUserStore.getState().token;
+  if (!token) throw new Error("Token is missing");
+  await axios.post(`${API_URL}/telegram/disconnect`, null, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 };

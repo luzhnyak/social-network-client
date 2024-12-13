@@ -1,76 +1,72 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import {
-  getUserSettings,
   connectTelegram,
   disconnectTelegram,
-  SettingsResponse,
+  getUserSettings,
 } from "@/lib/api";
-import RouteGuard from "@/components/RouteGuard";
+import { useEffect, useState } from "react";
 
 export default function SettingsPage() {
   const [telegramConnected, setTelegramConnected] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    const fetchSettings = async () => {
+      try {
+        const settings = await getUserSettings();
+        setTelegramConnected(settings.telegramConnected);
+      } catch (error) {
+        console.error("Failed to fetch settings", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    getUserSettings(token)
-      .then((data: SettingsResponse) =>
-        setTelegramConnected(data.telegramConnected)
-      )
-      .catch(() => setError("Не вдалося завантажити налаштування."));
+    fetchSettings();
   }, []);
 
   const handleConnect = async () => {
-    const token = localStorage.getItem("token");
     try {
-      await connectTelegram(token!);
+      await connectTelegram();
       setTelegramConnected(true);
-    } catch {
-      setError("Помилка при підключенні Telegram.");
+    } catch (error) {
+      console.error("Failed to connect Telegram", error);
     }
   };
 
   const handleDisconnect = async () => {
-    const token = localStorage.getItem("token");
     try {
-      await disconnectTelegram(token!);
+      await disconnectTelegram();
       setTelegramConnected(false);
-    } catch {
-      setError("Помилка при відключенні Telegram.");
+    } catch (error) {
+      console.error("Failed to disconnect Telegram", error);
     }
   };
 
+  if (loading) return <div>Loading settings...</div>;
+
   return (
-    <RouteGuard>
-      <div className="p-6">
-        <h1 className="text-2xl font-bold">Налаштування</h1>
-        {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
-        <div className="mt-4">
-          <p>
-            Telegram статус:{" "}
-            {telegramConnected ? "Підключено" : "Не підключено"}
-          </p>
-          {telegramConnected ? (
-            <button
-              onClick={handleDisconnect}
-              className="p-2 mt-4 text-white bg-red-500 rounded"
-            >
-              Відключити Telegram
-            </button>
-          ) : (
-            <button
-              onClick={handleConnect}
-              className="p-2 mt-4 text-white bg-green-500 rounded"
-            >
-              Підключити Telegram
-            </button>
-          )}
-        </div>
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Settings</h1>
+      <div className="flex items-center justify-between border p-4">
+        <span>Telegram Account</span>
+        {telegramConnected ? (
+          <button
+            onClick={handleDisconnect}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Disconnect
+          </button>
+        ) : (
+          <button
+            onClick={handleConnect}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Connect
+          </button>
+        )}
       </div>
-    </RouteGuard>
+    </div>
   );
 }

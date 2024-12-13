@@ -1,35 +1,43 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { fetchChats, Chat } from "@/lib/api";
-import RouteGuard from "@/components/RouteGuard";
+import { useEffect, useState } from "react";
+import { fetchChats } from "@/lib/api";
+import { useChatStore } from "@/store/useStore";
 
 export default function ChatsPage() {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [error, setError] = useState("");
+  const { chats, setChats } = useChatStore();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    const loadChats = async () => {
+      try {
+        const chatsData = await fetchChats();
+        setChats(chatsData);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (err) {
+        setError("Failed to load chats");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    fetchChats(token)
-      .then((data: Chat[]) => setChats(data))
-      .catch(() => setError("Не вдалося завантажити чати."));
-  }, []);
+    loadChats();
+  }, [setChats]);
+
+  if (loading) return <div>Loading chats...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <RouteGuard>
-      <div className="p-6">
-        <h1 className="text-2xl font-bold">Ваші чати</h1>
-        {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
-        <ul className="mt-4">
-          {chats.map((chat) => (
-            <li key={chat.id} className="p-2 mb-2 border rounded">
-              {chat.name}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </RouteGuard>
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Chats</h1>
+      <ul>
+        {chats.map((chat) => (
+          <li key={chat.id} className="border p-2 mb-2">
+            {chat.name}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

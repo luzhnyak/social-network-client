@@ -2,20 +2,21 @@
 
 import { useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { useUserStore } from "@/store/useStore";
 
-interface RouteGuardProps {
+interface PrivateRouteProps {
   children: ReactNode;
 }
 
-export default function RouteGuard({ children }: RouteGuardProps) {
+export default function PrivateRoute({ children }: PrivateRouteProps) {
   const router = useRouter();
+  const { token } = useUserStore();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (!token) {
       router.push("/auth");
     }
-  }, [router]);
+  }, [router, token]);
 
   return <>{children}</>;
 }
