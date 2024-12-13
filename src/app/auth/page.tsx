@@ -2,15 +2,21 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { loginUser, registerUser } from "@/lib/api";
+import { loginUser, registerUser, AuthData } from "@/lib/api";
 
 export default function AuthPage() {
   const [isRegister, setIsRegister] = useState(false);
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState<AuthData>({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(""); // Очищуємо попередні помилки
+
     try {
       const response = isRegister
         ? await registerUser(formData)
@@ -18,8 +24,12 @@ export default function AuthPage() {
 
       localStorage.setItem("token", response.data.token);
       router.push("/settings");
-    } catch (error) {
-      console.error("Auth error:", error);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          "Не вдалося виконати запит. Спробуйте ще раз."
+      );
     }
   };
 
@@ -29,6 +39,7 @@ export default function AuthPage() {
         <h2 className="mb-4 text-xl font-bold">
           {isRegister ? "Реєстрація" : "Авторизація"}
         </h2>
+        {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
         <input
           type="email"
           placeholder="Email"
@@ -53,7 +64,10 @@ export default function AuthPage() {
         </button>
         <p
           className="mt-4 text-sm text-center text-blue-500 cursor-pointer"
-          onClick={() => setIsRegister(!isRegister)}
+          onClick={() => {
+            setIsRegister(!isRegister);
+            setError("");
+          }}
         >
           {isRegister ? "Вже є обліковий запис?" : "Створити обліковий запис"}
         </p>
