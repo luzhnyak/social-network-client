@@ -1,3 +1,4 @@
+import { IChat, IMessage } from "@/types/telegram";
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 
@@ -6,10 +7,11 @@ interface UserState {
   setToken: (token: string | null) => void;
 }
 
-interface ChatState {
-  chats: { id: string; name: string }[];
-  setChats: (chats: { id: string; name: string }[]) => void;
-  clearChats: () => void;
+interface TelegramState {
+  chats: IChat[];
+  messages: IMessage[];
+  setChats: (chats: IChat[]) => void;
+  setMessages: (chats: IMessage[]) => void;
 }
 
 // export const useToken = create<UserState>()(
@@ -46,8 +48,9 @@ export const useUserStore = create<UserState>()(
   )
 );
 
-export const useChatStore = create<ChatState>((set) => ({
+export const useTelegramStore = create<TelegramState>((set) => ({
   chats: [],
+  messages: [],
   setChats: (chats) => set({ chats }),
-  clearChats: () => set({ chats: [] }),
+  setMessages: (messages) => set({ messages }),
 }));

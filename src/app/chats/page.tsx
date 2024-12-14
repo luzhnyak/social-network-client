@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { fetchChats } from "@/lib/api";
-import { useChatStore } from "@/store/useStore";
+import { useTelegramStore } from "@/store/useStore";
+import Link from "next/link";
 
 export default function ChatsPage() {
-  const { chats, setChats } = useChatStore();
+  const { chats, setChats } = useTelegramStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +35,12 @@ export default function ChatsPage() {
       <ul>
         {chats.map((chat) => (
           <li key={chat.id} className="border p-2 mb-2">
-            {chat.name}
+            <Link
+              href={`/chats/${chat.id}`}
+              className="text-blue-600 hover:underline"
+            >
+              {chat.name}
+            </Link>
           </li>
         ))}
       </ul>
