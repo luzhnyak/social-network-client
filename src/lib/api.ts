@@ -72,13 +72,28 @@ export const fetchChats = async (): Promise<IChat[]> => {
   const token = useUserStore.getState().token;
   if (!token) throw new Error("Token is missing");
 
-  const response = await axios.get(`${API_URL}/telegram/chats`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  try {
+    const response = await axios.get(`${API_URL}/telegram/chats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-  const { setChats } = useTelegramStore.getState();
-  setChats(response.data);
-  return response.data;
+    const { setChats } = useTelegramStore.getState();
+    setChats(response.data);
+    return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      // Якщо отримано 401 Unauthorized
+      console.error("Unauthorized. Token is invalid or expired.");
+      const { setToken } = useUserStore.getState();
+      setToken(null); // Очистити токен
+      throw new Error("Unauthorized. Please log in again.");
+    } else {
+      // Інші помилки
+      console.error("An error occurred while fetching chats:", error.message);
+      throw error;
+    }
+  }
 };
 
 // Функція для отримання повідомлень конкретного чату
@@ -87,22 +102,25 @@ export const fetchMessages = async (chatId: string): Promise<IMessage[]> => {
   console.log(token);
   console.log(chatId);
 
-  // const response = await axios.get(`${API_URL}/chats/${chatId}/messages`, {
-  //   headers: {
-  //     Authorization: `Bearer ${token}`,
-  //   },
-  // });
+  const response = await axios.get(
+    `${API_URL}/telegram/chats/${chatId}/messages`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   const { setMessages } = useTelegramStore.getState();
-  // setMessages(response.data);
+  setMessages(response.data);
 
-  const mockData = [
-    { id: "1", content: "string", sender: "string", timestamp: "string" },
-    { id: "2", content: "string", sender: "string", timestamp: "string" },
-    { id: "3", content: "string", sender: "string", timestamp: "string" },
-  ];
-  setMessages(mockData);
-  return mockData;
+  // const mockData = [
+  //   { id: "1", content: "string", sender: "string", timestamp: "string" },
+  //   { id: "2", content: "string", sender: "string", timestamp: "string" },
+  //   { id: "3", content: "string", sender: "string", timestamp: "string" },
+  // ];
+  // setMessages(mockData);
+  // return mockData;
 
-  // return response.data;
+  return response.data;
 };

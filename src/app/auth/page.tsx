@@ -16,10 +16,6 @@ export default function AuthPage() {
   const router = useRouter();
   const { setToken } = useUserStore();
 
-  // const { setToken } = useUserStore((state) => ({
-  //   setToken: state.setToken,
-  // }));
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");

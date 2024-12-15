@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { fetchChats } from "@/lib/api";
 import { useTelegramStore } from "@/store/useStore";
 import Link from "next/link";
+import PrivateRoute from "@/components/PrivateRoute";
 
 export default function ChatsPage() {
   const { chats, setChats } = useTelegramStore();
@@ -30,20 +31,28 @@ export default function ChatsPage() {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Chats</h1>
-      <ul>
-        {chats.map((chat) => (
-          <li key={chat.id} className="border p-2 mb-2">
-            <Link
-              href={`/chats/${chat.id}`}
-              className="text-blue-600 hover:underline"
-            >
-              {chat.name}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <PrivateRoute>
+      <div>
+        <h1 className="text-2xl font-bold mb-4">Chats</h1>
+        <ul>
+          {chats.map((chat) => (
+            <li key={chat.id} className="border p-2 mb-2">
+              <Link
+                href={`/chats/${chat.id}`}
+                className="text-blue-600 hover:underline"
+              >
+                <p>
+                  <strong>{chat.name}</strong>
+                </p>
+                <span className="text-gray-500 text-sm">
+                  {new Date(chat.last_message.date).toLocaleString()} :{" "}
+                  {chat.last_message.text}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </PrivateRoute>
   );
 }

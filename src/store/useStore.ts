@@ -48,9 +48,15 @@ export const useUserStore = create<UserState>()(
   )
 );
 
-export const useTelegramStore = create<TelegramState>((set) => ({
-  chats: [],
-  messages: [],
-  setChats: (chats) => set({ chats }),
-  setMessages: (messages) => set({ messages }),
-}));
+export const useTelegramStore = create<TelegramState>()(
+  devtools(
+    (set) => ({
+      chats: [],
+      messages: [],
+      setChats: (chats) => set({ chats }),
+      setMessages: (messages) => set({ messages }),
+    }),
+
+    { name: "telegram-storage" }
+  )
+);

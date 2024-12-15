@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTelegramStore } from "@/store/useStore";
 import { fetchMessages } from "@/lib/api";
+import PrivateRoute from "@/components/PrivateRoute";
 
 export default function ChatMessagesPage({
   params,
@@ -11,6 +12,7 @@ export default function ChatMessagesPage({
   params: Promise<{ id: string }>;
 }) {
   const [chatId, setChatId] = useState<string | null>(null);
+  const [chatName, setChatName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { chats, messages, setMessages } = useTelegramStore();
@@ -33,10 +35,14 @@ export default function ChatMessagesPage({
       }
     };
 
-    if (chats.find((chat) => chat.id === chatId)) {
-      router.push("/chats"); // Перенаправлення, якщо чату немає
-    } else {
+    const chat = chats.find((item) => item.id.toString() === chatId);
+
+    if (chat) {
+      setChatName(chat?.name);
       loadMessages();
+    } else {
+      setChatName("");
+      // router.push("/chats"); // Перенаправлення, якщо чату немає
     }
   }, [chatId, chats, router, setMessages]);
 
@@ -44,20 +50,22 @@ export default function ChatMessagesPage({
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Chat Messages</h1>
-      <ul>
-        {messages.map((message) => (
-          <li key={message.id} className="border p-2 mb-2">
-            <p>
-              <strong>{message.sender}</strong>: {message.content}
-            </p>
-            <span className="text-gray-500 text-sm">
-              {new Date(message.timestamp).toLocaleString()}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <PrivateRoute>
+      <div>
+        <h1 className="text-2xl font-bold mb-4">{chatName}</h1>
+        <ul>
+          {messages.map((message) => (
+            <li key={message.id} className="border p-2 mb-2">
+              <p>
+                <strong>{message.sender_id}</strong>: {message.text}
+              </p>
+              <span className="text-gray-500 text-sm">
+                {new Date(message.date).toLocaleString()}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </PrivateRoute>
   );
 }
