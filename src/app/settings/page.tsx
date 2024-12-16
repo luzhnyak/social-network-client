@@ -24,12 +24,17 @@ export default function SettingsPage() {
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await sendPhoneNumber({ phone_number });
-    if (response.status === "code_sent") {
-      setPhone_code_hash(response.phone_code_hash);
-      setSession_string(response.session_string);
-      setMessage(`Phone number ${phone_number} submitted!`);
-      setStep(2);
+    try {
+      const response = await sendPhoneNumber({ phone_number });
+      if (response.status === "code_sent") {
+        setPhone_code_hash(response.phone_code_hash);
+        setSession_string(response.session_string);
+        setMessage(`Phone number ${phone_number} submitted!`);
+        setStep(2);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setMessage(error.response.data.detail);
     }
   };
 
@@ -58,23 +63,27 @@ export default function SettingsPage() {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.log(error);
-
       setMessage(error.response.data.detail);
     }
   };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await sendPassword2FA({ password, session_string });
 
-    if (response.status === "success") {
-      setMessage(`2FA password submitted successfully!`);
-      setStep(1);
-      setTelegramAuth(true);
-      setPhone_number("");
-      setPhoneCode("");
-      setPassword("");
+    try {
+      const response = await sendPassword2FA({ password, session_string });
+
+      if (response.status === "success") {
+        setMessage(`2FA password submitted successfully!`);
+        setStep(1);
+        setTelegramAuth(true);
+        setPhone_number("");
+        setPhoneCode("");
+        setPassword("");
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setMessage(error.response.data.detail);
     }
   };
 
