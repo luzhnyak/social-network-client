@@ -10,13 +10,15 @@ interface RestrictedRouteProps {
 
 export default function RestrictedRoute({ children }: RestrictedRouteProps) {
   const router = useRouter();
-  const { token } = useUserStore();
+  const { token, isTelegramAuth } = useUserStore();
 
   useEffect(() => {
-    if (token) {
+    if (token && isTelegramAuth) {
       router.push("/chats");
+    } else if (token && !isTelegramAuth) {
+      router.push("/settings");
     }
-  }, [router, token]);
+  }, [router, token, isTelegramAuth]);
 
   return <>{children}</>;
 }

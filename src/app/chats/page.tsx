@@ -27,32 +27,40 @@ export default function ChatsPage() {
     loadChats();
   }, [setChats]);
 
-  if (loading) return <div>Loading chats...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
-
   return (
     <PrivateRoute>
-      <div>
-        <h1 className="text-2xl font-bold mb-4">Chats</h1>
-        <ul>
-          {chats.map((chat) => (
-            <li key={chat.id} className="border p-2 mb-2">
-              <Link
-                href={`/chats/${chat.id}`}
-                className="text-blue-600 hover:underline"
-              >
-                <p>
-                  <strong>{chat.name}</strong>
-                </p>
-                <span className="text-gray-500 text-sm">
-                  {new Date(chat.last_message.date).toLocaleString()} :{" "}
-                  {chat.last_message.text}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {error && <div className="text-red-500">{error}</div>}
+      {loading && <div>Loading chats...</div>}
+      {!loading && chats && (
+        <div>
+          <h1 className="text-2xl font-bold mb-4">Chats</h1>
+          <ul>
+            {chats.map((chat) => (
+              <li key={chat.id} className="border p-2 mb-2 hover:bg-gray-200">
+                <Link href={`/chats/${chat.id}`} className="">
+                  <div className="flex justify-between items-center">
+                    <strong className="text-blue-600 hover:text-blue-800">
+                      {chat.name}
+                    </strong>
+                    <span className="text-gray-500 text-sm">
+                      {""} {new Date(chat.last_message.date).toLocaleString()}
+                    </span>
+                  </div>
+                  <p>
+                    <strong className="text-gray-600 text-sm">
+                      {chat.last_message.sender}
+                    </strong>
+                    :{" "}
+                    <span className="text-gray-500 text-sm">
+                      {chat.last_message.text}
+                    </span>
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </PrivateRoute>
   );
 }

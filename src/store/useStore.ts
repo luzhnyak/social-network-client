@@ -4,7 +4,9 @@ import { persist, devtools } from "zustand/middleware";
 
 interface UserState {
   token: string | null;
+  isTelegramAuth: boolean;
   setToken: (token: string | null) => void;
+  setTelegramAuth: (isAuth: boolean) => void;
 }
 
 interface TelegramState {
@@ -14,28 +16,17 @@ interface TelegramState {
   setMessages: (chats: IMessage[]) => void;
 }
 
-// export const useToken = create<UserState>()(
-//   devtools(
-//     persist(
-//       (set) => ({
-//         token: null,
-//         setToken: async (token) => {
-//           set(() => ({ token }));
-//         },
-//       }),
-//       { name: "token" }
-//     ),
-//     { name: "token" }
-//   )
-// );
-
 export const useUserStore = create<UserState>()(
   devtools(
     persist(
       (set) => ({
         token: null,
+        isTelegramAuth: false,
         setToken: (token) => {
           set(() => ({ token }));
+        },
+        setTelegramAuth: (isAuth) => {
+          set(() => ({ isTelegramAuth: isAuth }));
         },
       }),
       {

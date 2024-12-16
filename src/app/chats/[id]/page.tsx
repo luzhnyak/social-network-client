@@ -46,26 +46,28 @@ export default function ChatMessagesPage({
     }
   }, [chatId, chats, router, setMessages]);
 
-  if (loading) return <div>Loading messages...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
-
   return (
     <PrivateRoute>
-      <div>
-        <h1 className="text-2xl font-bold mb-4">{chatName}</h1>
-        <ul>
-          {messages.map((message) => (
-            <li key={message.id} className="border p-2 mb-2">
-              <p>
-                <strong>{message.sender_id}</strong>: {message.text}
-              </p>
-              <span className="text-gray-500 text-sm">
-                {new Date(message.date).toLocaleString()}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {error && <div className="text-red-500">{error}</div>}
+      {loading && <div>Loading chats...</div>}
+      {!loading && chats && (
+        <div>
+          <h1 className="text-2xl font-bold mb-4">{chatName}</h1>
+          <ul>
+            {messages.map((message) => (
+              <li key={message.id} className="border p-2 mb-2">
+                <div className="flex justify-between items-center">
+                  <strong>{message.sender}</strong>:
+                  <span className="text-gray-500 text-sm">
+                    {new Date(message.date).toLocaleString()}
+                  </span>
+                </div>
+                <p>{message.text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </PrivateRoute>
   );
 }

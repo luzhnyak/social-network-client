@@ -14,7 +14,7 @@ export default function PrivateRoute({ children }: PrivateRouteProps) {
 
   useEffect(() => {
     if (!token) {
-      router.push("/auth");
+      router.push("/");
     }
   }, [router, token]);
 

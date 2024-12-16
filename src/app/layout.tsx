@@ -10,7 +10,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { token, setToken } = useUserStore();
+  const { token, setToken, isTelegramAuth } = useUserStore();
   const router = useRouter();
 
   const handleLogout = () => {
@@ -25,9 +25,11 @@ export default function RootLayout({
           <nav className="bg-white shadow mb-4">
             <div className="container mx-auto px-4 py-2 flex justify-between items-center">
               <div className="flex gap-4">
-                <Link href="/chats" className="text-blue-600 hover:underline">
-                  Chats
-                </Link>
+                {isTelegramAuth && (
+                  <Link href="/chats" className="text-blue-600 hover:underline">
+                    Chats
+                  </Link>
+                )}
                 <Link
                   href="/settings"
                   className="text-blue-600 hover:underline"
