@@ -22,8 +22,8 @@ export default function RootLayout({
   }, [token]);
 
   const handleLogout = () => {
-    setToken(null); // Очищаємо токен
-    router.push("/auth"); // Перенаправляємо на сторінку входу
+    setToken(null);
+    router.push("/auth");
   };
 
   return (

@@ -35,29 +35,47 @@ export default function SettingsPage() {
 
   const handleCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await sendVerifyCode({
-      phone_number,
-      phone_code,
-      phone_code_hash,
-      session_string,
-    });
 
-    setMessage(`Verification code ${phone_code} submitted!`);
-    if (response.status === "2fa_required") {
-      setSession_string(response.session_string);
-      setStep(3);
+    try {
+      const response = await sendVerifyCode({
+        phone_number,
+        phone_code,
+        phone_code_hash,
+        session_string,
+      });
+
+      setMessage(`Verification code ${phone_code} submitted!`);
+      if (response.status === "2fa_required") {
+        setSession_string(response.session_string);
+        setStep(3);
+      }
+
+      if (response.status === "success") {
+        setMessage(`Verification code is correct!`);
+        setSession_string(response.session_string);
+        setStep(1);
+        setTelegramAuth(true);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(error);
+
+      setMessage(error.response.data.detail);
     }
   };
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(`2FA password submitted successfully!`);
-    setStep(1);
-    sendPassword2FA({ password, session_string });
-    setTelegramAuth(true);
-    setPhone_number("");
-    setPhoneCode("");
-    setPassword("");
+    const response = await sendPassword2FA({ password, session_string });
+
+    if (response.status === "success") {
+      setMessage(`2FA password submitted successfully!`);
+      setStep(1);
+      setTelegramAuth(true);
+      setPhone_number("");
+      setPhoneCode("");
+      setPassword("");
+    }
   };
 
   const { isTelegramAuth } = useUserStore();

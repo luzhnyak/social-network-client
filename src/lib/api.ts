@@ -12,11 +12,7 @@ import {
 } from "@/types/telegram";
 import { AuthData } from "@/types/user";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-// export interface SettingsResponse {
-//   telegramConnected: boolean;
-// }
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8099";
 
 export const registerUser = async (
   data: AuthData
@@ -56,10 +52,21 @@ export const sendPhoneNumber = async (
 ): Promise<PhoneAuthResponse> => {
   const token = useUserStore.getState().token;
   if (!token) throw new Error("Token is missing");
-  const response = await axios.post(`${API_URL}/telegram/auth/start`, data, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return response.data;
+  try {
+    const response = await axios.post(`${API_URL}/telegram/auth/start`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const { setToken } = useUserStore.getState();
+      setToken(null);
+      throw new Error("Unauthorized. Please log in again.");
+    } else {
+      throw error;
+    }
+  }
 };
 
 export const sendVerifyCode = async (
@@ -67,14 +74,26 @@ export const sendVerifyCode = async (
 ): Promise<PhoneCodeVerifyResponse> => {
   const token = useUserStore.getState().token;
   if (!token) throw new Error("Token is missing");
-  const response = await axios.post(
-    `${API_URL}/telegram/auth/verify-code`,
-    data,
-    {
-      headers: { Authorization: `Bearer ${token}` },
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/telegram/auth/verify-code`,
+      data,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const { setToken } = useUserStore.getState();
+      setToken(null);
+      throw new Error("Unauthorized. Please log in again.");
+    } else {
+      throw error;
     }
-  );
-  return response.data;
+  }
 };
 
 export const sendPassword2FA = async (
@@ -82,14 +101,26 @@ export const sendPassword2FA = async (
 ): Promise<TwoFactorAuthResponse> => {
   const token = useUserStore.getState().token;
   if (!token) throw new Error("Token is missing");
-  const response = await axios.post(
-    `${API_URL}/telegram/auth/verify-2fa`,
-    data,
-    {
-      headers: { Authorization: `Bearer ${token}` },
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/telegram/auth/verify-2fa`,
+      data,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const { setToken } = useUserStore.getState();
+      setToken(null);
+      throw new Error("Unauthorized. Please log in again.");
+    } else {
+      throw error;
     }
-  );
-  return response.data;
+  }
 };
 
 export const disconnectTelegram = async (): Promise<void> => {

@@ -34,7 +34,7 @@ export const useUserStore = create<UserState>()(
       }
     ),
     {
-      name: "User",
+      name: "User-storage",
     }
   )
 );
@@ -48,6 +48,6 @@ export const useTelegramStore = create<TelegramState>()(
       setMessages: (messages) => set({ messages }),
     }),
 
-    { name: "telegram-storage" }
+    { name: "Telegram-storage" }
   )
 );
