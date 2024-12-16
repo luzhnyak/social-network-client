@@ -16,9 +16,9 @@ export default function ChatsPage() {
       try {
         const chatsData = await fetchChats();
         setChats(chatsData);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (err) {
-        setError("Failed to load chats");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
+        setError(err?.message || "Failed to load chats");
       } finally {
         setLoading(false);
       }

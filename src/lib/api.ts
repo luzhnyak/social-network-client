@@ -45,8 +45,9 @@ export const refreshUser = async (): Promise<{ token: string | null }> => {
 
   token = response.data.token;
 
-  const { setToken } = useUserStore.getState();
+  const { setToken, setTelegramAuth } = useUserStore.getState();
   setToken(token);
+  setTelegramAuth(response.data.isTelegramAuth);
   return { token };
 };
 
@@ -112,6 +113,8 @@ export const fetchChats = async (): Promise<IChat[]> => {
     });
 
     if (response.data.status === "telegram_not_autorize") {
+      const { setTelegramAuth } = useUserStore.getState();
+      setTelegramAuth(false);
       throw new Error(response.data.message);
     }
 

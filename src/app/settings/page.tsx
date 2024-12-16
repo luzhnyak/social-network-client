@@ -11,7 +11,7 @@ import { useUserStore } from "@/store/useStore";
 import { useState } from "react";
 
 export default function SettingsPage() {
-  const [step, setStep] = useState<1 | 2 | 3>(1); // Крок форми
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [phone_number, setPhone_number] = useState("");
   const [phone_code, setPhoneCode] = useState("");
   const [password, setPassword] = useState("");
@@ -45,14 +45,14 @@ export default function SettingsPage() {
     setMessage(`Verification code ${phone_code} submitted!`);
     if (response.status === "2fa_required") {
       setSession_string(response.session_string);
-      setStep(3); // Перехід до кроку з паролем
+      setStep(3);
     }
   };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(`2FA password submitted successfully!`);
-    setStep(1); // Повернення до початкового кроку
+    setStep(1);
     sendPassword2FA({ password, session_string });
     setTelegramAuth(true);
     setPhone_number("");

@@ -4,6 +4,8 @@ import "./globals.css";
 import Link from "next/link";
 import { useUserStore } from "@/store/useStore";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { refreshUser } from "@/lib/api";
 
 export default function RootLayout({
   children,
@@ -12,6 +14,12 @@ export default function RootLayout({
 }) {
   const { token, setToken, isTelegramAuth } = useUserStore();
   const router = useRouter();
+
+  useEffect(() => {
+    if (token) {
+      refreshUser();
+    }
+  }, [token]);
 
   const handleLogout = () => {
     setToken(null); // Очищаємо токен
